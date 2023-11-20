@@ -5,7 +5,8 @@ import LoginScreen from './LoginScreen';
 import Loading from '../components/common/Loading';
 import { Picker } from '@react-native-picker/picker';
 import { Timestamp } from 'firebase/firestore';
-import { db } from '../utils';
+import { db } from '../utils/Firebase';
+import { initFirebase } from '../utils';
 
 export default function IndexScreen(props) {
   const { navigation } = props;
@@ -15,8 +16,7 @@ export default function IndexScreen(props) {
   const [loadingNames, setLoadingNames] = useState(true);
   const [namesIds, setNamesIds] = useState([]);
   const [selectedNameId, setSelectedNameId] = useState(null);
-  const { email } = getAuth().currentUser;
-  console.log(email)
+
 
 
 

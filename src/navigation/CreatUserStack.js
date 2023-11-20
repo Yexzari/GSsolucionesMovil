@@ -10,7 +10,7 @@ export default function CreatUserStack() {
     <Stack.Screen
     name='CreateUserScreen'
     component={CreateUserScreen} //Vista a enseñar , que no sea el mismo
-    options={{title:"Create Provedor"}}>
+    options={{title:"Create "}}>
     </Stack.Screen>
 </Stack.Navigator>
   )

@@ -8,9 +8,9 @@ export default function UserListStack() {
   return (
     <Stack.Navigator>
     <Stack.Screen
-    name='CreateUserScreen'
+    name='UserList'
     component={UsersList} //Vista a enseñar , que no sea el mismo
-    options={{title:"Create Provedor"}}>
+    options={{title:"Info"}}>
     </Stack.Screen>
 </Stack.Navigator>
   )

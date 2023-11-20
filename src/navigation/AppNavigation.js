@@ -16,6 +16,7 @@ import UsersList from "../screens/UsersList";
 import CreateUserScreen from "../screens/CreateUserScreen";
 import CreatUserStack from "./CreatUserStack";
 import UserDatilsStack from "./UserDatilsStack";
+import UserListStack from "./UserListStack";
 
 // const Drawer = createDrawerNavigator();
 
@@ -53,10 +54,13 @@ export default function AppNavigation(){
             name="profile" component={ProfileStack} options={{title: "Perfil",headerShown:false}}>
             </Tab.Screen>
             <Tab.Screen 
-            name="CreateUserScreen" component={CreatUserStack} options={{title: "UserList",headerShown:false}}>
+            name="CreateUserScreen" component={CreatUserStack} options={{title: "Create",headerShown:false}}>
             </Tab.Screen>
             <Tab.Screen 
-            name="userDtails" component={UserDatilsStack} options={{title: "Info",headerShown:false}}>
+            name="UserList" component={UserListStack} options={{title: "Info",headerShown:false}}>
+            </Tab.Screen>
+            <Tab.Screen 
+            name="UserDetailsScreen" component={UserDatilsStack} options={{title: "Details",headerShown:false}}>
             </Tab.Screen>
             
             {/* <Tab.Screen 

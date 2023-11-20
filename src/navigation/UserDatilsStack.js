@@ -8,7 +8,7 @@ export default function UserDatilsStack() {
   return (
     <Stack.Navigator>
     <Stack.Screen
-    name='dtails'
+    name='UserDetailsScreen'
     component={UserDtailsScreen} //Vista a enseñar , que no sea el mismo
     options={{title:"Info"}}>
     </Stack.Screen>
