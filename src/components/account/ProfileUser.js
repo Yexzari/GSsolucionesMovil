@@ -49,37 +49,41 @@ export default function ProfileUser(props) {
 
   return (
     <View style={styles.viewInfo}>
-      <Avatar
-        size="large"
-        rounded={true}
-        icon={{ type: "material", name: "person" }}
-        containerStyle={styles.avatar}
-        source={{ uri: photo }}
-      >
-        <Avatar.Accessory size={25} onPress={changePhoto} />
-      </Avatar>
-      <View>
-        <Text style={styles.user}>{displayName || "Anonimo"}</Text>
-        <Text>{email}</Text>
-      </View>
+    <Avatar
+      size={250}  // Ajusta el tamaño de la imagen
+      containerStyle={styles.avatar}
+      source={{ uri: photo }}
+    >
+      <Avatar.Accessory size={40} onPress={changePhoto} />
+    </Avatar>
+    <View style={styles.userInfo}>
+      <Text style={styles.user}>{displayName || "Anonimo"}</Text>
+      <Text>{email}</Text>
     </View>
-  );
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
-  viewInfo: {
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    backgroundColor: "#f2f2f2",
-    paddingVertical: 30,
-  },
-  avatar: {
-    backgroundColor: "#faad07",
-    marginRight: 20,
-  },
-  user: {
-    fontWeight: "bold",
-    paddingBottom: 5,
-  },
+viewInfo: {
+  alignItems: "center",
+  justifyContent: "center",
+  flexDirection: "column", // Cambiado a columna para apilar los elementos verticalmente
+  backgroundColor: "#f2f2f2",
+  paddingVertical: 30,
+},
+avatar: {
+  backgroundColor: "#faad07",
+  borderRadius: 10, // Ajusta el radio del borde para que la imagen sea cuadrada
+  overflow: "hidden", // Para asegurarte de que la imagen no se salga del área cuadrada
+  marginBottom: 10, // Espaciado inferior para separar la imagen del texto
+},
+userInfo: {
+  alignItems: "center", // Centra el texto horizontalmente
+},
+user: {
+  fontWeight: "bold",
+  paddingBottom: 5,
+  fontSize:15
+},
 });

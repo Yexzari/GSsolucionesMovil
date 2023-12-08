@@ -13,17 +13,12 @@ export default function IndexStack() {
         <Stack.Screen
         name='indexs'
         component={IndexScreen} //Vista a enseñar , que no sea el mismo
-        options={{title:"Indexs"}}>
-        </Stack.Screen>
-        <Stack.Screen
-        name='login'
-        component={LoginScreen} //Vista a enseñar , que no sea el mismo
-        options={{title:"Iniciar Sesion"}}>
+        options={{title:"Indexs",headerShown:false}} >
         </Stack.Screen>
         <Stack.Screen
         name='register'
         component={RegisterScreen} //Vista a enseñar , que no sea el mismo
-        options={{title:"Registrate"}}>
+        options={{title:"Registrate",headerShown:false}}>
         </Stack.Screen>
         {/* <Stack.Screen
         name='profile'

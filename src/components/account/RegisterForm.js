@@ -6,6 +6,8 @@ import * as Yup from "yup";
 import {getAuth,createUserWithEmailAndPassword} from "firebase/auth"
 import  Toast  from 'react-native-toast-message';
 import {useNavigation } from '@react-navigation/native';
+import ButtonRegister from './ButtonRegister';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function RegisterForm() {
 const [showPass, setShowPass] = useState(false) //const showPass=false; setShowPass(true)
@@ -51,12 +53,12 @@ const navigation = useNavigation();
     }
   return (
     <View style={styles.viewContent}>
-      <Input placeholder='E-mail'containerStyle={styles.input}
+      <Input placeholder='E-mail'containerStyle={styles.input} inputContainerStyle={{ borderBottomWidth: 0 }}
       rightIcon={<Icon type='material-community' name='at' iconStyle={styles.icon}/>} //Icono  en la derecha
       onChangeText={text=> formik.setFieldValue("email",text)}// Cachar el texto  , Error por x o y razon 
       errorMessage={formik.errors.email}/> 
 
-      <Input placeholder='Password'containerStyle={styles.input} secureTextEntry={showPass ? false : true}//Incriptar contraseña, verifica en que estado esta 
+      <Input placeholder='Password'containerStyle={styles.input} inputContainerStyle={{ borderBottomWidth: 0 }} secureTextEntry={showPass ? false : true}//Incriptar contraseña, verifica en que estado esta 
       rightIcon={
       <Icon type='material-community'
        name={showPass ? "eye-off-outline" : "eye-outline"} //Dependiendo en que estado esta , pondra el icono
@@ -66,14 +68,13 @@ const navigation = useNavigation();
       onChangeText={text=> formik.setFieldValue("password",text)}
       errorMessage={formik.errors.password}/>
 
-      <Input placeholder='Corfirm Password'containerStyle={styles.input} secureTextEntry={true}
+      <Input placeholder='Corfirm Password'containerStyle={styles.input} inputContainerStyle={{ borderBottomWidth: 0 }}secureTextEntry={true}
       rightIcon={<Icon type='material-community' name='eye' iconStyle={styles.icon}/>}
       onChangeText={text=> formik.setFieldValue("repeatPassword",text)}
       errorMessage={formik.errors.repeatPassword}/>
 
-      <Button title="Registrarse" containerStyle={styles.btnCotainer} buttonStyle={styles.btn}
-      onPress={formik.handleSubmit}
-      loading={formik.isSubmitting} />
+      <ButtonRegister onPress={formik.handleSubmit}
+      loading={formik.isSubmitting}/>
       
     </View>
   )
@@ -81,11 +82,19 @@ const navigation = useNavigation();
 
 const styles = StyleSheet.create({
     viewContent:{
-        marginTop:30
+        marginTop:30,
+        marginHorizontal:40,
     },
     input:{
         width:"100%",
-        marginTop:15
+        marginTop:40,
+        borderColor:'gray',
+        borderRadius:30,
+        height:50,
+        backgroundColor:"#fff",
+        fontSize:30,
+        paddingStart:30,
+        color:'grey'
     },
     icon:{
         color:"#c1c1c1"

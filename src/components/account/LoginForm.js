@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React , {useState} from 'react'
 import { Input,Icon,Button } from 'react-native-elements'
 import * as Yup from "yup";
@@ -7,6 +7,10 @@ import { getAuth, signInWithEmailAndPassword} from "firebase/auth"
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { async } from '@firebase/util';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
+import ButtonLogin from './ButtonLogin';
+
 
 
 export default function LoginForm() {
@@ -43,14 +47,14 @@ export default function LoginForm() {
                 }
     })
   return (
-    <View>
-      <Input placeholder='E-mail'containerStyle={styles.input}
+    <View >
+      <Input placeholder='Correo'containerStyle={styles.input} inputContainerStyle={{ borderBottomWidth: 0 }}
       rightIcon={
       <Icon type='material-community' name='at' iconStyle={styles.icon} />} onChangeText={(text)=>formik.setFieldValue("email" ,text)}  
-      errorMessage= { formik.errors.email}//Icono  en la derecha
+      errorMessage= { formik.errors.email}
       /> 
 
-      <Input placeholder='Password'containerStyle={styles.input} secureTextEntry={showPass ? false : true}//Incriptar contraseña, verifica en que estado esta 
+      <Input placeholder='Contraseña'containerStyle={styles.input} inputContainerStyle={{ borderBottomWidth: 0 }} secureTextEntry={showPass ? false : true}//Incriptar contraseña, verifica en que estado esta 
       rightIcon={
       <Icon type='material-community'
        name={showPass ? "eye-off-outline" : "eye-outline"} //Dependiendo en que estado esta , pondra el icono
@@ -58,8 +62,8 @@ export default function LoginForm() {
        onPress={showPassword}/> // Llamma a la funcion
         } onChangeText={(text)=>formik.setFieldValue("password" ,text)} errorMessage = {formik.errors.password}
       />
-
-      <Button title="Iniciar sesion" containerStyle={styles.btnCotainer} buttonStyle={styles.btn} onPress={formik.handleSubmit} loading={formik.isSubmitting}/>
+       
+      <ButtonLogin title="Iniciar sesion" onPress={formik.handleSubmit} loading={formik.isSubmitting}/>
     </View>
     
   )
@@ -70,15 +74,25 @@ const styles = StyleSheet.create({ viewContent:{
 },
 input:{
     width:"100%",
-    marginTop:15
+    marginTop:40,
+    borderColor:'gray',
+    borderRadius:30,
+    height:50,
+    backgroundColor:"#fff",
+    fontSize:30,
+    paddingStart:30,
+    color:'grey'
 },
 icon:{
     color:"#c1c1c1"
 },
 btnCotainer:{
-    marginTop:15,
-    width:"95%"
+    marginTop:50,
+    width:"95%",
+    alignContent:"center"
 },
 btn:{
-    backgroundColor:"#f0a801"
-}})
+    backgroundColor:"#f0a801",
+    
+},
+})

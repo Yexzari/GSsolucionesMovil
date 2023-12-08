@@ -32,62 +32,81 @@ import UserListStack from "./UserListStack";
 
 const Tab = createBottomTabNavigator();
 
-export default function AppNavigation(){
-    const [sesion,setSesion] = useState(null);
-  useEffect(()=>{
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user)=>{
-     setSesion(user ? true : false);
-    })
-  },[]);
+export default function AppNavigation() {
+    const [sesion, setSesion] = useState(null);
+    useEffect(() => {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            setSesion(user ? true : false);
+        })
+    }, []);
+    
 
     return sesion ? (
-        <Tab.Navigator screenOptions={({route})=>({title: "index", headerShown:false, tabBarActiveTintColor:"red", 
-        tabBarInactiveTintColor:"green", tabBarIcon:({color, size})=>(iconos(route, color, size))})}>
-            <Tab.Screen 
-            name="index" component={IndexStack}>   
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                title: "Inicio",
+                headerShown: false,
+                headerShown: false,
+                activeTintColor: 'black', // Color del ícono activo
+                inactiveTintColor: 'gray', // Color del ícono inactivo
+                tabBarStyle: {
+                    height: 50,
+                    paddingHorizontal: 5,
+                    paddingTop: 0,
+                    backgroundColor: 'rgba(34,36,40,1)',
+                    borderTopWidth: 0,
+                },
+                tabBarIcon: ({ color, size }) => iconos(route, color, size),
+            })} >
+
+            <Tab.Screen
+                name="index" component={IndexStack}>
             </Tab.Screen>
-             <Tab.Screen 
-             name="details" component={DetailsStack} options={{title: "Status",headerShown:false}}>
-             </Tab.Screen>
-            <Tab.Screen 
-            name="profile" component={ProfileStack} options={{title: "Perfil",headerShown:false}}>
+            <Tab.Screen
+                name="UserList" component={UserListStack} options={{ title: "Provedores" }}>
             </Tab.Screen>
-            <Tab.Screen 
-            name="CreateUserScreen" component={CreatUserStack} options={{title: "Create",headerShown:false}}>
+            <Tab.Screen
+                name="CreateUserScreen" component={CreatUserStack} options={{ title: "Crear" }}>
             </Tab.Screen>
-            <Tab.Screen 
-            name="UserList" component={UserListStack} options={{title: "Info",headerShown:false}}>
+            <Tab.Screen
+                name="UserDetailsScreen" component={UserDatilsStack} options={{ title: "Detalles" }}>
             </Tab.Screen>
-            <Tab.Screen 
-            name="UserDetailsScreen" component={UserDatilsStack} options={{title: "Details",headerShown:false}}>
+            <Tab.Screen
+                name="profile" component={ProfileStack} options={{ title: "Perfil", headerShown: false }}>
             </Tab.Screen>
-            
             {/* <Tab.Screen 
             name="profile" component={ProfileScreen} options={{title: "Perfil"}}>
             </Tab.Screen> */}
         </Tab.Navigator>
     ) : (
-        <IndexStack/>
+        <IndexStack />
     )
 }
 
-function iconos (route, color, size){
+function iconos(route, color, size) {
     let name;
-    if(route.name===`index`){
-        name = "home-outline";
+    if (route.name === `index`) {
+        name = "home-edit-outline";
     }
-    if(route.name===`details`){
-        name = "details";
+    if (route.name === `CreateUserScreen`) {
+        name = "account-plus-outline";
     }
-    if(route.name===`profile`){
+    if (route.name === `UserList`) {
+        name = "account-group-outline";
+    }
+    if (route.name === `profile`) {
         name = "account";
     }
-    return<Icon type="material-community" 
-    name={name} 
-    color={color} 
-    size={size}/>
+    if (route.name === `UserDetailsScreen`) {
+        name = "account-details-outline";
     }
+
+    return <Icon type="material-community"
+        name={name}
+        color={color}
+        size={size} />
+}
 
 // const Stack = createNativeStackNavigator();
 
