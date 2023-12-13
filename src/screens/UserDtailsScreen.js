@@ -43,8 +43,6 @@ const UserDetailsScreen = (props) => {
         if (userEntries.length > 0) {
           const latestEntry = userEntries[0].data();
           setEntryTime(latestEntry.entryTime);
-          const userPhotoUrl = latestEntry.photo;
-          setUserDetails((prevDetails) => ({ ...prevDetails, photo: userPhotoUrl }));
 
           if (latestEntry.projectId) {
             const projectDocRef = doc(db, 'projects', latestEntry.projectId);
@@ -70,6 +68,7 @@ const UserDetailsScreen = (props) => {
 
     fetchUserDetails();
   }, [props.route.params?.userId]);
+
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -78,14 +77,15 @@ const UserDetailsScreen = (props) => {
         aspect: [4, 3],
         quality: 1,
       });
-  
+
       if (!result.cancelled) {
-        setState({ ...state, photo: result.uri });  // Cambia result.assets[0]?.uri a result.uri
+        setUserDetails((prevDetails) => ({ ...prevDetails, photo: result.uri }));
       }
     } catch (error) {
       console.error('Error al seleccionar la imagen:', error);
     }
   };
+
   console.log('URL de la imagen:', userDetails?.photo);
 
   return (
@@ -93,13 +93,13 @@ const UserDetailsScreen = (props) => {
       {isLoading && <Text>Cargando...</Text>}
       {userDetails && (
         <View>
-        <Avatar
-          rounded
-          size="xlarge"
-          source={{ uri: userDetails.photo }}
-          onLoad={() => console.log('Image loaded successfully')}
-          onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
-        />
+          <Avatar
+            rounded
+            size="xlarge"
+            source={{ uri: userDetails.photo }}
+            onLoad={() => console.log('Image loaded successfully')}
+            onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+          />
         <Text style={styles.label}>Nombre:</Text>
         <Text style={styles.text}>{userDetails.name}</Text>
         <Text style={styles.label}>Apellido Paterno:</Text>
