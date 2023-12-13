@@ -49,8 +49,8 @@ const resetForm = () => {
   const saveNewUser = async () => {
     const db = getFirestore();
 
-    if (state.name === '') {
-      Alert.alert('Error', 'Ingresa nombre');
+    if (!state.name ||!state.lastName ||!state.motherLastName || !state.rfc || !state.phoneNumber) {
+      Alert.alert('Error', 'Nombre, RFC y Número de Teléfono son campos obligatorios');
     } else if (!/^[A-Za-z0-9]{13}$/.test(state.rfc)) {
       Alert.alert('Error', 'RFC debe tener exactamente 13 caracteres alfanuméricos');
     } else {
@@ -59,10 +59,10 @@ const resetForm = () => {
           name: state.name,
           lastName: state.lastName,
           motherLastName: state.motherLastName,
-          curp: state.curp,
+          curp: state.curp || '',
           rfc: state.rfc,
           phoneNumber: state.phoneNumber,
-          photo: state.photo, // Guardamos la URI de la foto
+          photo: state.photo || null, // Guardamos la URI de la foto
         });
         Alert.alert('Éxito', 'Usuario guardado correctamente');
         resetForm();

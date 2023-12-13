@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
-import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, updateDoc } from 'firebase/firestore';
-import ImagePicker from 'react-native-image-picker';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { View, Text,StyleSheet } from 'react-native';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Avatar } from 'react-native-elements';
 
-
-const UserDtailsScreen = (props) => {
+const UserDetailsScreen = (props) => {
   const [userDetails, setUserDetails] = useState(null);
   const [entryTime, setEntryTime] = useState(null);
-  const [avatarSource, setAvatarSource] = useState(null);
   const [projectDetails, setProjectDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       const db = getFirestore();
       const userId = props.route.params.userId;
-
-      console.log('userId en UserDtailsScreen:', userId);
 
       if (!userId) {
         console.error('ID de usuario no proporcionado');
@@ -25,7 +20,6 @@ const UserDtailsScreen = (props) => {
       }
 
       try {
-        // Obtener detalles del usuario
         const userDocRef = doc(db, 'users', userId);
         const userDocSnap = await getDoc(userDocRef);
 
@@ -36,19 +30,12 @@ const UserDtailsScreen = (props) => {
           return;
         }
 
-        // Obtener la última entrada del usuario
-        //const entriesQuery = query(
-        //  collection(db, 'entries'),
-        //  where('userId', '==', userId),
-        //  orderBy('entryTime', 'desc'), // Ordenar por hora de entrada descendente
-        //  limit(1) // Obtener solo la última entrada
-        //);
         const entriesQuery = query(
           collection(db, 'entries'),
           where('userId', '==', userId)
         );
 
-        const entriesSnapshot = await getDocs(collection(db, 'entries'));
+        const entriesSnapshot = await getDocs(entriesQuery);
         const userEntries = entriesSnapshot.docs
           .filter((doc) => doc.data().userId === userId)
           .sort((a, b) => b.data().entryTime - a.data().entryTime);
@@ -58,15 +45,13 @@ const UserDtailsScreen = (props) => {
           setEntryTime(latestEntry.entryTime);
           const userPhotoUrl = latestEntry.photo;
           setUserDetails((prevDetails) => ({ ...prevDetails, photo: userPhotoUrl }));
-          // Obtener detalles del proyecto asignado
+
           if (latestEntry.projectId) {
             const projectDocRef = doc(db, 'projects', latestEntry.projectId);
             const projectDocSnap = await getDoc(projectDocRef);
 
             if (projectDocSnap.exists()) {
               const projectDetails = projectDocSnap.data();
-              console.log('Project Name:', projectDetails.name);
-              // Actualizar el estado con los detalles del proyecto
               setProjectDetails(projectDetails);
             } else {
               console.error('Proyecto no encontrado');
@@ -77,39 +62,81 @@ const UserDtailsScreen = (props) => {
         }
       } catch (error) {
         console.error('Error al obtener detalles del usuario:', error);
+      } finally {
+        // Marcar isLoading como falso después de que se complete la carga
+        setIsLoading(false);
       }
     };
 
     fetchUserDetails();
   }, [props.route.params?.userId]);
-
-
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!result.cancelled) {
+        setState({ ...state, photo: result.uri });  // Cambia result.assets[0]?.uri a result.uri
+      }
+    } catch (error) {
+      console.error('Error al seleccionar la imagen:', error);
+    }
+  };
+  console.log('URL de la imagen:', userDetails?.photo);
 
   return (
     <View>
+      {isLoading && <Text>Cargando...</Text>}
       {userDetails && (
         <View>
-          {userDetails && (
-        <View>
-          <Avatar
-            rounded
-            size="xlarge"
-            source={{ uri: userDetails.photo }}
-          />
-          {/* ... (otros detalles) */}
-        </View>
-      )}
-          <Text>Nombre: {userDetails.name}</Text>
-          <Text>Apellido Paterno: {userDetails.lastName}</Text>
-          <Text>Apellido Materno: {userDetails.motherLastName}</Text>
-          <Text>CURP: {userDetails.curp}</Text>
-          <Text>RFC: {userDetails.rfc}</Text>
-          <Text>Número de teléfono: {userDetails.phoneNumber}</Text>
-          {entryTime && <Text>Entry Time: {entryTime.toDate().toLocaleString()}</Text>}
-          {projectDetails && <Text>Project Name: {projectDetails.nameProject}</Text>}
-        </View>
+        <Avatar
+          rounded
+          size="xlarge"
+          source={{ uri: userDetails.photo }}
+          onLoad={() => console.log('Image loaded successfully')}
+          onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+        />
+        <Text style={styles.label}>Nombre:</Text>
+        <Text style={styles.text}>{userDetails.name}</Text>
+        <Text style={styles.label}>Apellido Paterno:</Text>
+        <Text style={styles.text}>{userDetails.lastName}</Text>
+        <Text style={styles.label}>Apellido Materno:</Text>
+        <Text style={styles.text}>{userDetails.motherLastName}</Text>
+        <Text style={styles.label}>CURP:</Text>
+        <Text style={styles.text}>{userDetails.curp}</Text>
+        <Text style={styles.label}>RFC:</Text>
+        <Text style={styles.text}>{userDetails.rfc}</Text>
+        <Text style={styles.label}>Número de teléfono:</Text>
+        <Text style={styles.text}>{userDetails.phoneNumber}</Text>
+        {entryTime && <Text style={styles.label}>Fecha y hora de Registro:</Text>}
+        {entryTime && <Text style={styles.text}>{entryTime.toDate().toLocaleString()}</Text>}
+        {projectDetails && <Text style={styles.label}>Project Name:</Text>}
+        {projectDetails && <Text style={styles.text}>{projectDetails.nameProject}</Text>}
+      </View>
       )}
     </View>
   );
 };
-export default UserDtailsScreen;
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  text: {
+    fontSize: 14,
+    marginTop: 5,
+  },
+});
+export default UserDetailsScreen;

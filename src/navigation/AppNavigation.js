@@ -64,7 +64,7 @@ export default function AppNavigation() {
                 name="index" component={IndexStack}>
             </Tab.Screen>
             <Tab.Screen
-                name="UserList" component={UserListStack} options={{ title: "Provedores" }}>
+                name="UserList" component={UserListStack} options={{ title: "Operativos" }}>
             </Tab.Screen>
             <Tab.Screen
                 name="CreateUserScreen" component={CreatUserStack} options={{ title: "Crear" }}>

@@ -109,7 +109,7 @@ export default function IndexScreen(props) {
           console.log('Usuario encontrado en la base de datos:', selectedUser);
   
           // También puedes ocultar automáticamente el escáner aquí si lo deseas
-          setIsScannerVisible(false);
+          setIsScannerVisible(true);
         } else {
           // Si el usuario no existe, mostrar un mensaje de error o tomar las medidas adecuadas
           console.warn('Usuario no encontrado en la base de datos. Escanea un QR válido.');
@@ -123,7 +123,7 @@ export default function IndexScreen(props) {
   const handleConfirm = async () => {
     if (selectedUser && selectedProjectId) {
       try {
-        setIsScannerVisible(false);
+        setIsScannerVisible(true);
         const db = getFirestore();
         const entryRef = collection(db, 'entries');
         const entryData = {
@@ -149,7 +149,6 @@ export default function IndexScreen(props) {
         setSelectedUser(null);
         setSelectedProjectId(null);
         setIsScanning(true);
-        setIsScannerVisible(true);
       }
     } else {
       Alert.alert('Por favor, selecciona un proveedor y un proyecto antes de confirmar la entrada.');
@@ -168,10 +167,11 @@ export default function IndexScreen(props) {
     return <Text>No tienes permisos para acceder a la cámara.</Text>;
   }
 
+  
   return sesion ? (
     <View style={styles.viewForm}>
       <Text style={styles.hora}>{currentTime}</Text>
-      <Text>Selecciona proveedor: </Text>
+      <Text >Selecciona proveedor: </Text>
       <Picker
         selectedValue={selectedUser ? selectedUser.id : null}
         onValueChange={(itemValue, itemIndex) => {
@@ -180,6 +180,7 @@ export default function IndexScreen(props) {
         }}
         style={styles.pickerStyle}
       >
+        
         <Picker.Item label="Seleccione user" value={null} />
         {users.map((user) => (
           <Picker.Item key={user.id} label={user.name} value={user.id} />
@@ -200,18 +201,18 @@ export default function IndexScreen(props) {
       </Picker>
 
 
-{cameraPermissionGranted && isScannerVisible && (
-  <View style={styles.scannerContainer}>
-    <BarCodeScanner
-      ref={cameraRef}
-      style={[StyleSheet.absoluteFillObject, styles.scanner]}
-      onBarCodeScanned={handleBarcodeRead}
-    />
-  </View>
+{cameraPermissionGranted && (
+   <View style={styles.scannerContainer}>
+          <BarCodeScanner
+            ref={cameraRef}
+            style={styles.scanner}
+            onBarCodeScanned={handleBarcodeRead}
+            
+            barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
+            
+          />
+        </View>
 )}
-
-
-
       <Button title="Confirmar Entrada" style={styles.btnRegister} onPress={handleConfirm}>
         Confirmar Entrada
       </Button>
@@ -229,16 +230,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scanner: {
+    width: '80%',
     aspectRatio: 1,
   },
   pickerStyle: {
-    height: 50,
-    width: 200,
-    borderColor: 'gray',
+    height: 40,
+    width: 300,
+    borderColor: 'black',
     borderWidth: 1,
-    marginBottom: 20,
+    marginTop: 10,
+    borderRadius:100,
+    backgroundColor: 'white', 
   },
-
   hora: {
     color: '#EBB61E',
     fontSize: 80,
@@ -249,8 +252,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 80,
   },
-  btnRegister:{
-    marginTop:40
-  }
+  btnRegister: {
+    marginTop: 20,
+  },
 });

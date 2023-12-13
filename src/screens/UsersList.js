@@ -13,52 +13,52 @@ const UsersList = (props) => {
 
   const fetchUsers = async () => {
     try {
-    console.log('Fetching users...');
-    const db = getFirestore();
-    const usersQuerySnapshot = await getDocs(collection(db, 'users'));
+      console.log('Fetching users...');
+      const db = getFirestore();
+      const usersQuerySnapshot = await getDocs(collection(db, 'users'));
 
-    const usersData = [];
-    for (const userDoc of usersQuerySnapshot.docs) {
-      const userData = userDoc.data();
-      const userId = userDoc.id;
+      const usersData = [];
+      for (const userDoc of usersQuerySnapshot.docs) {
+        const userData = userDoc.data();
+        const userId = userDoc.id;
 
-      // Obtener la foto del usuario directamente de los datos del usuario
-      const userPhoto = userData.photo;
+        // Obtener la foto del usuario directamente de los datos del usuario
+        const userPhoto = userData.photo;
 
-      // Obtener el proyecto asociado al usuario (si existe)
-      const entriesQuery = query(collection(db, 'entries'), where('userId', '==', userId));
-      const entriesSnapshot = await getDocs(entriesQuery);
+        // Obtener el proyecto asociado al usuario (si existe)
+        const entriesQuery = query(collection(db, 'entries'), where('userId', '==', userId));
+        const entriesSnapshot = await getDocs(entriesQuery);
 
-      let projectName = 'No asignado'; // Valor predeterminado si no hay proyecto asignado
-      if (!entriesSnapshot.empty) {
-        const latestEntry = entriesSnapshot.docs[0].data();
-        if (latestEntry.projectId) {
-          // Buscar el nombre del proyecto asociado
-          const projectDoc = await getDocs(collection(db, 'projects'), where('id', '==', latestEntry.projectId));
-          if (!projectDoc.empty) {
-            projectName = projectDoc.docs[0].data().nameProject;
+        let projectName = 'No asignado'; // Valor predeterminado si no hay proyecto asignado
+        if (!entriesSnapshot.empty) {
+          const latestEntry = entriesSnapshot.docs[0].data();
+          if (latestEntry.projectId) {
+            // Buscar el nombre del proyecto asociado
+            const projectDoc = await getDocs(collection(db, 'projects'), where('id', '==', latestEntry.projectId));
+            if (!projectDoc.empty) {
+              projectName = projectDoc.docs[0].data().nameProject;
+            }
           }
         }
+
+        usersData.push({
+          id: userId,
+          name: userData.name,
+          date: userData.date,
+          projectName: projectName,
+          photo: userPhoto,
+        });
       }
 
-      usersData.push({
-        id: userId,
-        name: userData.name,
-        date: userData.date,
-        projectName: projectName,
-        photo: userPhoto,
-      });
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
-
-    setUsers(usersData);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-  }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, []); 
+  }, []);
 
   const renderRightActions = (userId) => (
     <RectButton style={{ backgroundColor: 'red', justifyContent: 'center', alignItems: 'center', width: 75 }} onPress={() => deleteUser(userId)}>
@@ -107,7 +107,11 @@ const UsersList = (props) => {
             }}
           >
             <ListItem.Chevron />
-            <Avatar size={32} rounded source={{ uri: user.photo }} />
+            <Avatar
+              size={32}
+              rounded
+              source={user.photo ? { uri: user.photo } : require("../../assets/img/PhotoNull.png")}
+            />
             <ListItem.Content>
               <ListItem.Title>{user.name}</ListItem.Title>
               <ListItem.Subtitle>{user.date}</ListItem.Subtitle>
