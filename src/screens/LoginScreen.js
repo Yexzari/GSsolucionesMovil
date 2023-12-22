@@ -9,8 +9,6 @@ import { BlurView } from 'expo-blur';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 const { width, height } = Dimensions.get('window')
 
-
-const uri = "https://i.pinimg.com/originals/69/bb/7e/69bb7ed765264325f6b79782aeffb988.jpg"
 export default function LoginScreen() {
   const navigation = useNavigation();
   const irRegistro = () => {

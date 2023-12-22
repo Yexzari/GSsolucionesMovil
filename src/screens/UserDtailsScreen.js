@@ -90,16 +90,16 @@ const UserDetailsScreen = (props) => {
 
   return (
     <View>
-      {isLoading && <Text>Cargando...</Text>}
+      {isLoading }
       {userDetails && (
         <View>
           <Avatar
-            rounded
-            size="xlarge"
-            source={{ uri: userDetails.photo }}
-            onLoad={() => console.log('Image loaded successfully')}
-            onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
-          />
+  rounded
+  size="xlarge"
+  source={{ uri: userDetails?.photo }}
+  onLoad={() => console.log('Image loaded successfully')}
+  onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+/>
         <Text style={styles.label}>Nombre:</Text>
         <Text style={styles.text}>{userDetails.name}</Text>
         <Text style={styles.label}>Apellido Paterno:</Text>

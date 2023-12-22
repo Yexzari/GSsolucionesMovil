@@ -7,8 +7,8 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import { Alert } from 'react-native';
-
-
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import ButtonRegistro from './ButtonRegistro';
 export default function IndexScreen(props) {
   const { navigation } = props;
   const [sesion, setSesion] = useState(null);
@@ -166,12 +166,55 @@ export default function IndexScreen(props) {
   if (hasPermission === false) {
     return <Text>No tienes permisos para acceder a la cámara.</Text>;
   }
-
+  function SvgTop(){
+    return(
+      <Svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={390}
+      height={144}
+      fill="none"
+    >
+      <Path
+        fill="#E80262"
+        fillOpacity={0.53}
+        d="M354 100.5c-78.8 51.6-167.5 43.167-202 32.5V61.5L354 55v45.5Z"
+      />
+      <Path
+        fill="#E2B412"
+        fillOpacity={0.72}
+        d="M389.5 116.5c-81.6 42.8-148.667 10.167-172-11.5V46h172v70.5Z"
+      />
+      <Path
+        fill="url(#a)"
+        d="M198.5 113C90.5 166.6 21.167 138.667 0 118V0h390v116.5c-74-39.6-158.5-18.833-191.5-3.5Z"
+      />
+      <Defs>
+        <LinearGradient
+          id="a"
+          x1={390}
+          x2={0}
+          y1={42.5}
+          y2={42.5}
+          gradientUnits="userSpaceOnUse"
+        >
+          <Stop stopColor="#F23B87" />
+          <Stop offset={0} stopColor="#F23B87" />
+          <Stop offset={0.646} stopColor="#F47E62" />
+          <Stop offset={1} stopColor="#F2B743" />
+        </LinearGradient>
+      </Defs>
+    </Svg>
+    )
+  }
   
   return sesion ? (
     <View style={styles.viewForm}>
-      <Text style={styles.hora}>{currentTime}</Text>
-      <Text >Selecciona proveedor: </Text>
+      <View style={styles.topContainer}>
+        <SvgTop style={styles.sv}/>
+        <Text style={{ ...styles.hora, fontSize: 100,position: 'absolute',}}>
+          {currentTime}
+        </Text>
+      </View>
       <Picker
         selectedValue={selectedUser ? selectedUser.id : null}
         onValueChange={(itemValue, itemIndex) => {
@@ -186,7 +229,6 @@ export default function IndexScreen(props) {
           <Picker.Item key={user.id} label={user.name} value={user.id} />
         ))}
       </Picker>
-      <Text>Selecciona proyecto: </Text>
       <Picker
         selectedValue={selectedProjectId}
         onValueChange={(itemValue, itemIndex) => {
@@ -213,9 +255,7 @@ export default function IndexScreen(props) {
           />
         </View>
 )}
-      <Button title="Confirmar Entrada" style={styles.btnRegister} onPress={handleConfirm}>
-        Confirmar Entrada
-      </Button>
+      <ButtonRegistro title="Confirmar Entrada" style={styles.btnRegister} onPress={handleConfirm}></ButtonRegistro>
     </View>
   ) : (
     <LoginScreen />
@@ -223,38 +263,47 @@ export default function IndexScreen(props) {
 }
 
 const styles = StyleSheet.create({
+
   scannerContainer: {
-    flex: 1,
+    
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    marginBottom: 20,
   },
   scanner: {
     width: '80%',
     aspectRatio: 1,
   },
   pickerStyle: {
-    height: 40,
-    width: 300,
+    height: 30,
+    width: 250,
     borderColor: 'black',
     borderWidth: 1,
-    marginTop: 10,
-    borderRadius:100,
-    backgroundColor: 'white', 
+    marginTop: 30,
+    marginBottom: 30,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    overflow: 'hidden', // Añade esta línea
   },
   hora: {
-    color: '#EBB61E',
+    color: '#fff',
     fontSize: 80,
     textAlign: 'center',
     fontWeight: 'bold',
   },
   viewForm: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 80,
+    backgroundColor:"#E7E7E7",
   },
   btnRegister: {
-    marginTop: 20,
+    marginBottom: 10,
   },
+  topContainer: {
+    marginTop:0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
 });

@@ -1,122 +1,113 @@
 import React, { useEffect, useState } from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-import DetailsScreen from "../screens/DetailsScreen";
-
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import ProfileScreen from "../screens/ProfileScreen";
-import IndexScreen from "../screens/IndexScreen";
-import IndexStack from "./IndexStack";
-import DetailsStack from "./DetailsStack";
-import ProfileStack from "./ProfileStack";
-import { Icon } from "react-native-elements";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import UsersList from "../screens/UsersList";
-import CreateUserScreen from "../screens/CreateUserScreen";
+import { Icon } from "react-native-elements";
+import { LinearGradient } from "expo-linear-gradient";
+import IndexStack from "./IndexStack";
+import ProfileStack from "./ProfileStack";
 import CreatUserStack from "./CreatUserStack";
-import UserDatilsStack from "./UserDatilsStack";
 import UserListStack from "./UserListStack";
+import LoginStack from "./LoginStack";
+import { Dimensions } from 'react-native'; // Agrega esta importación al principio de tu archivo
+import { StyleSheet } from "react-native";
+import { Text,View } from "react-native-elements";
+import MenuButton from "./MenuButton";
 
-// const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator();
 
-// export default function AppNavigation(){
-//          return(
-//             <Drawer.Navigator>
-//                 <Drawer.Screen name="index" component={IndexScreen} options={{title: "index"}}></Drawer.Screen>
-//                 <Drawer.Screen name="details" component={DetailsScreen} options={{title: "details"}}></Drawer.Screen>
-//                 <Drawer.Screen name="information" component={InformationScreen} options={{title: "Information"}}></Drawer.Screen>
-//              </Drawer.Navigator>
-//          )
-//      }
+const headerBackground = () => (
+  <LinearGradient
+    colors={['#F7DF2D', '#F23B87']}
+    style={{ flex: 1 }}
+    start={{ x: 0, y: 4 }}
+    end={{ x: 1, y: 1 }}
+  />
+);
 
-const Tab = createBottomTabNavigator();
+const GradientBackground = ({ children }) => (
+  <LinearGradient
+    colors={['#FFD353', '#F23B87']}
+    style={{ flex: 1 }}
+    start={{ x: 1, y: 1 }}
+    end={{ x: 1, y: 0 }}
+  >
+    {children}
+  </LinearGradient>
+);
+
+const DrawerContent = ({ navigation }) => {
+  return (
+    <GradientBackground>
+      <DrawerContentScrollView style={styles.container}>
+        <Text style={styles.title}>Menú</Text>
+        <MenuButton text="Inicio"
+          type="material-community" icon="home-edit-outline" 
+          onPress={() => navigation.navigate("Inicio")}></MenuButton>
+          <Text style={{marginTop:25, marginBottom:10, fontWeight:"bold", color:"white"}}>Operativos</Text>
+          <MenuButton text="Operativos"
+             type="material-community" icon="account-group-outline" 
+          onPress={() => navigation.navigate("UserList")}></MenuButton>
+          <MenuButton text="Agregar Operativo"
+           type="material-community" icon="account-plus-outline" 
+          onPress={() => navigation.navigate("CreateUserScreen")}></MenuButton>
+          <MenuButton text="Perfil"
+        type="material-community" icon="account"
+          onPress={() => navigation.navigate("Profile")}></MenuButton>
+        <Text style={{marginTop:25, marginBottom:10, fontWeight:"bold", color:"white"}}>Proyectos</Text>
+          <MenuButton text="Proyectos"
+             type="material-community" icon="account-group-outline" ></MenuButton>
+          <MenuButton text="Agregar Proyecto"
+           type="material-community" icon="account-plus-outline"></MenuButton>
+      </DrawerContentScrollView>
+    </GradientBackground>
+  );
+};
 
 export default function AppNavigation() {
-    const [sesion, setSesion] = useState(null);
-    useEffect(() => {
-        const auth = getAuth();
-        onAuthStateChanged(auth, (user) => {
-            setSesion(user ? true : false);
-        })
-    }, []);
+  const [sesion, setSesion] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      setSesion(user ? true : false);
+    });
+  }, []);
+
+  return sesion ? (
+    <Drawer.Navigator
+      screenOptions={{
+        headerBackground: headerBackground,
+        headerTintColor: 'white',
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+            fontStyle: 'italic',  // cursiva
+            fontWeight: 'bold',   // negrita
+          },
+      }}
+      drawerContent={(props) => <DrawerContent {...props} />}
+      drawerStyle={{
+        width: Dimensions.get('window').width * 0.95, // Utiliza Dimensions para obtener la anchura de la ventana
+      }}
+    >
     
-
-    return sesion ? (
-        <Tab.Navigator
-            screenOptions={({ route }) => ({
-                title: "Inicio",
-                headerShown: false,
-                headerShown: false,
-                activeTintColor: 'black', // Color del ícono activo
-                inactiveTintColor: 'gray', // Color del ícono inactivo
-                tabBarStyle: {
-                    height: 50,
-                    paddingHorizontal: 5,
-                    paddingTop: 0,
-                    backgroundColor: 'rgba(34,36,40,1)',
-                    borderTopWidth: 0,
-                },
-                tabBarIcon: ({ color, size }) => iconos(route, color, size),
-            })} >
-
-            <Tab.Screen
-                name="index" component={IndexStack}>
-            </Tab.Screen>
-            <Tab.Screen
-                name="UserList" component={UserListStack} options={{ title: "Operativos" }}>
-            </Tab.Screen>
-            <Tab.Screen
-                name="CreateUserScreen" component={CreatUserStack} options={{ title: "Crear" }}>
-            </Tab.Screen>
-            <Tab.Screen
-                name="UserDetailsScreen" component={UserDatilsStack} options={{ title: "Detalles" }}>
-            </Tab.Screen>
-            <Tab.Screen
-                name="profile" component={ProfileStack} options={{ title: "Perfil", headerShown: false }}>
-            </Tab.Screen>
-            {/* <Tab.Screen 
-            name="profile" component={ProfileScreen} options={{title: "Perfil"}}>
-            </Tab.Screen> */}
-        </Tab.Navigator>
-    ) : (
-        <IndexStack />
-    )
+      <Drawer.Screen name="Inicio" component={IndexStack} />
+      <Drawer.Screen name="UserList" component={UserListStack} options={{ title: "Operativos" }} />
+      <Drawer.Screen name="CreateUserScreen" component={CreatUserStack} options={{ title: "Crear" }} />
+      <Drawer.Screen name="Profile" component={ProfileStack} options={{ title: "Perfil" }} />
+    </Drawer.Navigator>
+  ) : (
+    <LoginStack />
+  );
 }
+const styles = StyleSheet.create({
+    container:{
+        padding:15,
 
-function iconos(route, color, size) {
-    let name;
-    if (route.name === `index`) {
-        name = "home-edit-outline";
+    },
+    title:{
+        fontSize:20,
+        fontWeight:'bold',
+        marginBottom:20,
+        color: 'white',
     }
-    if (route.name === `CreateUserScreen`) {
-        name = "account-plus-outline";
-    }
-    if (route.name === `UserList`) {
-        name = "account-group-outline";
-    }
-    if (route.name === `profile`) {
-        name = "account";
-    }
-    if (route.name === `UserDetailsScreen`) {
-        name = "account-details-outline";
-    }
-
-    return <Icon type="material-community"
-        name={name}
-        color={color}
-        size={size} />
-}
-
-// const Stack = createNativeStackNavigator();
-
-// export default function AppNavigation(){
-//     return(
-//         <Stack.Navigator>
-//             <Stack.Screen name="index" component={IndexScreen} options={{title: "index"}}></Stack.Screen>
-//             <Stack.Screen name="details" component={DetailsScreen} options={{title: "details"}}></Stack.Screen>
-//             <Stack.Screen name="information" component={InformationScreen} options={{title: "Information"}}></Stack.Screen>
-
-//     </Stack.Navigator>
-//     )
-// }
+})

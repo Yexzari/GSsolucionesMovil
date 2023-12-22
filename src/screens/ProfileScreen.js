@@ -18,10 +18,10 @@ export default function ProfileScreen() {
   const logout = async () => {
     const auth = getAuth();
     await signOut(auth);
-    navigation.navigate("index", { screen: "login" });
+    navigation.navigate('login');
   };
   return (
-    <View>
+    <View style={styles.container}>
       <ProfileUser setVisibleLoad={setVisibleLoad} setTextLoad={setTextLoad} />
       <OptionsUser reload={onReload} />
       <Button
@@ -48,4 +48,7 @@ const styles = StyleSheet.create({
   textBtn: {
     color: "white",
   },
+  container:{
+    backgroundColor:"black"
+  }
 });
