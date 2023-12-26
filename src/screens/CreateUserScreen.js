@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, View, Button, ScrollView, Alert, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
-import UsersList from './UsersList';
+import { Input } from 'react-native-elements';
+import ButtonFoto from './ButtonFoto';
+import ButtonCreate from './ButtonCreate';
 
 const initialState = {
   name: '',
@@ -14,21 +17,38 @@ const initialState = {
   photo: null,
 };
 
-function CreateUserScreen(props) {
+const CreateUserScreen = (props) => {
   const { navigation } = props;
   const [state, setState] = useState(initialState);
 
-const resetForm = () => {
-  console.log('Reseteando formulario')
-    setState(initialState); // Inicializamos directamente el estado
-    console.log(initialState);
+  const resetForm = () => {
+    setState(initialState);
   };
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
 
+  const handleContentSizeChange = (contentWidth, contentHeight) => {
+    setScrollViewHeight(contentHeight);
+  };
   const handleChangeText = (name, value) => {
     const uppercasedValue = ['curp', 'rfc'].includes(name) ? value.toUpperCase() : value;
     setState({ ...state, [name]: uppercasedValue });
-    
   };
+
+  const uploadPhoto = async (uri) => {
+    const storage = getStorage();
+    const imageRef = ref(storage, 'user_photos/' + new Date().toISOString());
+
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      await uploadBytes(imageRef, blob);
+      const imageUrl = await getDownloadURL(imageRef);
+      setState({ ...state, photo: imageUrl });
+    } catch (error) {
+      console.error('Error al cargar la imagen:', error);
+    }
+  };
+
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -37,9 +57,9 @@ const resetForm = () => {
         aspect: [4, 3],
         quality: 1,
       });
-  
-      if (!result.canceled) {
-        setState({ ...state, photo: result.assets[0]?.uri });
+
+      if (!result.cancelled) {
+        uploadPhoto(result.uri);
       }
     } catch (error) {
       console.error('Error al seleccionar la imagen:', error);
@@ -49,7 +69,7 @@ const resetForm = () => {
   const saveNewUser = async () => {
     const db = getFirestore();
 
-    if (!state.name ||!state.lastName ||!state.motherLastName || !state.rfc || !state.phoneNumber) {
+    if (!state.name || !state.lastName || !state.motherLastName || !state.rfc || !state.phoneNumber) {
       Alert.alert('Error', 'Nombre, RFC y Número de Teléfono son campos obligatorios');
     } else if (!/^[A-Za-z0-9]{13}$/.test(state.rfc)) {
       Alert.alert('Error', 'RFC debe tener exactamente 13 caracteres alfanuméricos');
@@ -62,11 +82,11 @@ const resetForm = () => {
           curp: state.curp || '',
           rfc: state.rfc,
           phoneNumber: state.phoneNumber,
-          photo: state.photo || null, // Guardamos la URI de la foto
+          photo: state.photo || null,
         });
         Alert.alert('Éxito', 'Usuario guardado correctamente');
         resetForm();
-        props.navigation.navigate('UserList')
+        navigation.navigate('UserList');
       } catch (error) {
         console.error('Error al guardar el usuario:', error);
         Alert.alert('Error', 'Error al guardar el usuario. Por favor, inténtalo de nuevo.');
@@ -74,7 +94,6 @@ const resetForm = () => {
     }
   };
 
-  // Función para cargar y traer información de Firebase (ejemplo)
   const loadUserData = async () => {
     const db = getFirestore();
     const usersCollection = collection(db, 'users');
@@ -89,55 +108,56 @@ const resetForm = () => {
     }
   };
 
-  // Llamada a la función de carga al cargar el componente
   useEffect(() => {
     loadUserData();
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
+        <ScrollView
+      style={styles.container}
+      onContentSizeChange={handleContentSizeChange}
+      contentContainerStyle={{ minHeight: scrollViewHeight }}
+    >
       <View style={styles.inputGroup}>
-        <TextInput
-          placeholder="Nombre(s)" value={state.name}
+        <Input
+          placeholder="Nombre(s)" value={state.name}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
           onChangeText={(value) => handleChangeText('name', value)}
         />
       </View>
       <View style={styles.inputGroup}>
-        <TextInput
-          placeholder="Apellidos" value={state.lastName}
+        <Input
+          placeholder="Apellido Paterno" value={state.lastName}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
           onChangeText={(value) => handleChangeText('lastName', value)}
         />
       </View>
       <View style={styles.inputGroup}>
-  <TextInput
-    placeholder="Apellido Materno" value={state.motherLastName}
-    onChangeText={(value) => handleChangeText('motherLastName', value)}
-  />
-</View>
-
+        <Input
+          placeholder="Apellido Materno" value={state.motherLastName}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
+          onChangeText={(value) => handleChangeText('motherLastName', value)}
+        />
+      </View>
       <View style={styles.inputGroup}>
-        <TextInput
-          placeholder="CURP (opcional)" value={state.curp}
+        <Input
+          placeholder="CURP (Opcional)" value={state.curp}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
           onChangeText={(value) => handleChangeText('curp', value)}
         />
       </View>
       <View style={styles.inputGroup}>
-        <TextInput
-          placeholder="RFC (13 dígitos)" value={state.rfc}
+        <Input
+          placeholder="RFC (13 dígitos)" value={state.rfc}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
           onChangeText={(value) => handleChangeText('rfc', value)}
         />
       </View>
       <View style={styles.inputGroup}>
-        <TextInput 
-          placeholder="Número de Teléfono" value={state.phoneNumber}
+        <Input
+          placeholder="Número de Teléfono" value={state.phoneNumber}inputContainerStyle={{ borderBottomWidth: 0 }} inputStyle={styles.inputText}
           onChangeText={(value) => handleChangeText('phoneNumber', value)}
         />
       </View>
       {/* Puedes agregar más TextInput según sea necesario */}
-
-      <Button title="Seleccionar Foto" onPress={pickImage} />
-      {state.photo && <Image source={{ uri: state.photo }} style={{ width: 200, height: 200 }} />}
-      <Button title="Guardar usuario" onPress={saveNewUser} />
+      <ButtonFoto title="Seleccionar Foto"  onPress={pickImage} />
+      {state.photo && <Image source={{ uri: state.photo }} style={{ width: 150, height: 150,alignSelf: 'center', }} />}
+      <ButtonCreate title="Guardar usuario" onPress={saveNewUser}/>
     </ScrollView>
   );
 }
@@ -148,12 +168,19 @@ const styles = StyleSheet.create({
     padding: 35,
   },
   inputGroup: {
-    flex: 1,
-    padding: 0,
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
+    width:"100%",
+    marginBottom:30,
+    borderColor:'gray',
+    borderRadius:30,
+    height:45,
+    backgroundColor:"#fff",
+    fontSize:15,
+    paddingStart:30, 
+    color:'grey'
   },
+  inputText:{
+    fontSize:15,
+  }
 });
 
 export default CreateUserScreen;

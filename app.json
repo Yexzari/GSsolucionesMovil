@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "GSsoluciones",
+    "name": "GSsoluciones Check",
     "slug": "GSsoluciones",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icono.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -29,13 +29,10 @@
         "android.permission.RECORD_AUDIO"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.yexbernal.GSsoluciones"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [

@@ -4,11 +4,13 @@ import { Button, StyleSheet, Text, View } from 'react-native';
 import LoginScreen from './LoginScreen';
 import Loading from '../components/common/Loading';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import { Alert } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import ButtonRegistro from './ButtonRegistro';
+
+
 export default function IndexScreen(props) {
   const { navigation } = props;
   const [sesion, setSesion] = useState(null);
@@ -126,34 +128,47 @@ export default function IndexScreen(props) {
         setIsScannerVisible(true);
         const db = getFirestore();
         const entryRef = collection(db, 'entries');
+  
+        // Verificar si el usuario ya está registrado en el proyecto seleccionado
+        const existingEntryQuery = query(entryRef, where('userId', '==', selectedUser.id), where('projectId', '==', selectedProjectId));
+        const existingEntrySnapshot = await getDocs(existingEntryQuery);
+  
+        if (!existingEntrySnapshot.empty) {
+          // El usuario ya está registrado en este proyecto
+          Alert.alert('Advertencia', 'Este usuario ya está registrado en este proyecto.');
+          return;
+        }
+  
+        // Registrar la entrada si el usuario no está registrado en este proyecto
         const entryData = {
           userId: selectedUser.id,
           projectId: selectedProjectId,
           entryTime: serverTimestamp(),
         };
         await addDoc(entryRef, entryData);
-
+  
         // Buscar el nombre del proyecto en la lista de proyectos
         const selectedProject = projects.find((project) => project.id === selectedProjectId);
         const projectName = selectedProject ? selectedProject.name : 'Desconocido';
-
+  
         // Mostrar alert con detalles
         const formattedTime = new Date().toLocaleTimeString();
         const alertMessage = `Usuario: ${selectedUser.name}\nHora registrada: ${formattedTime}\nProyecto asignado: ${projectName}`;
         Alert.alert('Entrada Registrada', alertMessage);
-        
+  
         console.log('Hora de entrada registrada en Firebase con proyecto asignado.');
       } catch (error) {
         console.error('Error al registrar la hora de entrada:', error);
-      }finally{
+      } finally {
         setSelectedUser(null);
         setSelectedProjectId(null);
         setIsScanning(true);
       }
     } else {
-      Alert.alert('Por favor, selecciona un proveedor y un proyecto antes de confirmar la entrada.');
+      Alert.alert('Por favor, selecciona un usuario y un proyecto antes de confirmar la entrada.');
     }
   };
+  
 
   if (loadingNames || sesion === null) {
     return <Loading visible={true} text={'Cargando'} />;

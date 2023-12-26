@@ -92,8 +92,9 @@ export default function AppNavigation() {
     
       <Drawer.Screen name="Inicio" component={IndexStack} />
       <Drawer.Screen name="UserList" component={UserListStack} options={{ title: "Operativos" }} />
-      <Drawer.Screen name="CreateUserScreen" component={CreatUserStack} options={{ title: "Crear" }} />
+      <Drawer.Screen name="CreateUserScreen" component={CreatUserStack} options={{ title: "Agregar usuario" }} />
       <Drawer.Screen name="Profile" component={ProfileStack} options={{ title: "Perfil" }} />
+      
     </Drawer.Navigator>
   ) : (
     <LoginStack />

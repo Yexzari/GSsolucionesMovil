@@ -2,7 +2,7 @@ import React from 'react'
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 
-export default function ButtonRegistro({ title, onPress, loading }) {
+export default function ButtonCreate({ title, onPress, loading }) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} disabled={loading}>
     <LinearGradient
@@ -11,7 +11,7 @@ export default function ButtonRegistro({ title, onPress, loading }) {
          end={{ x: 1, y: 1 }} // Ajusta según sea necesario
          style={styles.button}
      >
-       <Text style={styles.text}>Confirmar</Text>
+       <Text style={styles.text}>Agregar</Text>
     </LinearGradient>
  </TouchableOpacity>
   )
@@ -24,9 +24,9 @@ text:{
     fontWeight:'bold'
 },
 button:{
-    width:300,
+    width:"80%",
     height:50,
-    borderRadius:25, 
+    borderRadius:25,
     padding:10,
     alignItems:'center',
     justifyContent:'center',
