@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { getFirestore, doc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Button, ListItem, Avatar,SearchBar } from 'react-native-elements';
@@ -7,16 +7,15 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { RectButton } from 'react-native-gesture-handler';
 import { Alert } from 'react-native';
 import { StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; // Import the icon from Expo vector icons
+import ButtonCreate from './ButtonCreate';
+import ButtonActualizar from './ButtonActualizar';
 
 
 const UsersList = (props) => {
   const [users, setUsers] = useState([]);
   const navigation = useNavigation();
   const [updateTrigger, setUpdateTrigger] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const searchBarRef = useRef(null);
-
 
   const fetchUsers = async () => {
     try {
@@ -39,7 +38,6 @@ const UsersList = (props) => {
         let projectName = 'No asignado'; // Valor predeterminado si no hay proyecto asignado
         if (!entriesSnapshot.empty) {
           const latestEntry = entriesSnapshot.docs[0].data();
-
           if (latestEntry.projectId) {
             // Buscar el nombre del proyecto asociado
             const projectDoc = await getDocs(collection(db, 'projects'), where('id', '==', latestEntry.projectId));
@@ -51,7 +49,6 @@ const UsersList = (props) => {
         const projectsCountQuery = query(collection(db, 'entries'), where('userId', '==', userId));
         const projectsCountSnapshot = await getDocs(projectsCountQuery);
         const projectCount = projectsCountSnapshot.size;
-
         usersData.push({
           id: userId,
           name: userData.name,
@@ -105,71 +102,43 @@ const UsersList = (props) => {
       console.error('Error updating users list:', error);
     }
   };
-  
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (text === '') {
-      // Si la búsqueda está vacía, mostrar la lista completa
-      setFilteredUsers([]);
-    } else {
-    const filtered = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(text.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(text.toLowerCase()) ||
-        user.motherLastName.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredUsers(filtered);
-  }
-  };
-  useEffect(() => {
-    // Verifica si la referencia no es null antes de llamar a blur
-    console.log('searchBarRef.current:', searchBarRef.current);
-    if (searchBarRef.current) {
-      searchBarRef.current.blur();
-    }
-  }, [filteredUsers]);
   return (
     <ScrollView>
-<SearchBar
-ref={searchBarRef}
-  placeholder="Buscar por nombre o apellidos"
-  onChangeText={handleSearch}
-  platform="android"
-/>
-
-{(search === '' ? users : filteredUsers).map((user) => (
-      <Swipeable key={user.id} renderRightActions={() => renderRightActions(user.id)}>
-        <ListItem
-          bottomDivider
-          onPress={() => {
-            console.log('Clic en el usuario:', user.id);
-            props.navigation.navigate("UserDtailsScreen", {
-              userId: user.id
-            });
-            console.log(props.navigation);
-          }}
-        >
-          <ListItem.Chevron />
-          <Avatar
-            size={48}
-            rounded
-            source={{
-              uri: user.photo ? user.photo : "https://example.com/default-photo.jpg",
+<ButtonActualizar onPress={updateUsersList}/>
+      {users.map(user => (
+        <Swipeable key={user.id} renderRightActions={() => renderRightActions(user.id)}>
+          
+          <ListItem
+            bottomDivider
+            onPress={() => {
+              console.log('Clic en el usuario:', user.id);
+              props.navigation.navigate("UserDtailsScreen", {
+                userId: user.id
+              });
+              console.log(props.navigation);
             }}
-            onError={() => console.log('Error cargando la foto del usuario')}
-          />
-          <ListItem.Content>
+          >
+            <ListItem.Chevron />
+            <Avatar
+              size={48}
+              rounded
+              source={{
+                uri: user.photo ? user.photo : "https://example.com/default-photo.jpg",
+              }}
+              onError={() => console.log('Error cargando la foto del usuario')}
+            />
+            <ListItem.Content>
+
             <ListItem.Title>{`${user.name} ${user.lastName} ${user.motherLastName}`}</ListItem.Title>
-            <ListItem.Subtitle>{user.date}</ListItem.Subtitle>
-            <ListItem.Subtitle>{`Proyectos: ${user.projectCount}`}</ListItem.Subtitle>
-            <ListItem.Subtitle>{`Proyecto: ${user.projectName}`}</ListItem.Subtitle>
-          </ListItem.Content>
-        </ListItem>
-      </Swipeable>
-    ))}
-    <Button title="Create User" onPress={() => props.navigation.navigate("CreateUserScreen")} />
-    <Button title="Update List" onPress={updateUsersList} />
-  </ScrollView>
+              <ListItem.Subtitle>{user.date}</ListItem.Subtitle>
+              <ListItem.Subtitle>{`Proyectos: ${user.projectCount}`}</ListItem.Subtitle>
+              <ListItem.Subtitle>{`Status: Ocupado`}</ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+        </Swipeable>
+      ))}
+      
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({

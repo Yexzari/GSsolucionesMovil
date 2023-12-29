@@ -19,6 +19,7 @@ export default function UserListStack() {
         component={UserDetailsScreen} //Vista a enseñar , que no sea el mismo
         options={{title:"Detalles"}}>
         </Stack.Screen>
+        
 </Stack.Navigator>
   )
 }

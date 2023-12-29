@@ -34,6 +34,11 @@ const GradientBackground = ({ children }) => (
     {children}
   </LinearGradient>
 );
+const AddUserButton = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.addUserButton}>
+    <Icon type="material-community" name="account-plus-outline" color="white" size={30} />
+  </TouchableOpacity>
+);
 
 const DrawerContent = ({ navigation }) => {
   return (

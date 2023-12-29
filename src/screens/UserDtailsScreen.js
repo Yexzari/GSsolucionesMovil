@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Avatar } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Button, Card  } from 'react-native-paper';
+import { Button, Card } from 'react-native-paper';
 
 
 const UserDetailsScreen = (props) => {
@@ -114,35 +114,34 @@ const UserDetailsScreen = (props) => {
                   rounded
                   size="xlarge"
                   source={{ uri: userDetails?.photo }}
+                  containerStyle={styles.avatarContainerStyle}
+                  placeholderStyle={styles.avatarPlaceholderStyle}
                   onLoad={() => console.log('Image loaded successfully')}
                   onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
                 />
               </View>
-              <Text style={styles.label}>Nombre:</Text>
-              <Text style={styles.text}>{`${userDetails.name} ${userDetails.lastName} ${userDetails.motherLastName}`}</Text>
               <Card>
-                <Card.Title title="Nombre" subtitle="Card Subtitle"  />
+                <Card.Title title="Nombre" subtitle={`${userDetails.name} ${userDetails.lastName} ${userDetails.motherLastName}`} ></Card.Title>
                 <Card.Content>
-                  <Text variant="titleLarge">Card title</Text>
-                  <Text variant="bodyMedium">Card content</Text>
+                  <Text variant="titleLarge">CURP</Text>
+                  <Text variant="bodyMedium">{userDetails.curp}</Text>
                 </Card.Content>
-                <Card.Actions>
-                  <Button>Cancel</Button>
-                  <Button>Ok</Button>
-                </Card.Actions>
+                <Card.Content>
+                  <Text variant="titleLarge">RFC</Text>
+                  <Text variant="bodyMedium">{userDetails.rfc}</Text>
+                </Card.Content>
+                <Card.Content>
+                  <Text variant="titleLarge">Teléfono</Text>
+                  <Text variant="bodyMedium">{userDetails.phoneNumber}</Text>
+                </Card.Content>
               </Card>
-              <Text style={styles.label}>CURP:</Text>
-              <Text style={styles.text}>{userDetails.curp}</Text>
-              <Text style={styles.label}>RFC:</Text>
-              <Text style={styles.text}>{userDetails.rfc}</Text>
-              <Text style={styles.label}>Número de teléfono:</Text>
-              <Text style={styles.text}>{userDetails.phoneNumber}</Text>
               {entryTime.length > 0 && (
                 <View>
-                  <Text style={styles.label}>Entradas del usuario:</Text>
+                  <Text style={styles.label}>Proyectos: {projects.length}</Text>
                   {entryTime.map((entry, index) => (
                     <View key={index}>
-                      <Text style={styles.label}>Proyecto:</Text>
+
+
                       {projectDetails.length > 0 && entry.data().projectId && (
                         projectDetails.map((project) => {
 
@@ -150,18 +149,29 @@ const UserDetailsScreen = (props) => {
                             console.log(`Encontrado nombre del proyecto para ${entry.data().projectId}: ${project.name}`);
                             return (
                               <View key={project.id}>
-                                <Text style={styles.text}>{project.name}</Text>
+                                <Card style={styles.card}>
+                                  <Card.Title title="Proyecto" subtitle={project.name} ></Card.Title>
+                                  <Card.Content>
+                                    <Text variant="titleLarge">Proyecto: {project.name} </Text>
+                                    <Text variant="titleLarge">Fecha y hora de Registro:</Text>
+                                    <Text variant="bodyMedium">{entry.data().entryTime?.seconds &&
+                                      new Date(entry.data().entryTime.seconds * 1000).toLocaleString()}</Text>
+                                  </Card.Content>
+                                  <Card.Content>
+                                    <Text variant="titleLarge">RFC </Text>
+                                    <Text variant="bodyMedium">{userDetails.rfc}</Text>
+                                  </Card.Content>
+                                  <Card.Content>
+                                    <Text variant="titleLarge">Teléfono</Text>
+                                    <Text variant="bodyMedium">{userDetails.phoneNumber}</Text>
+                                  </Card.Content>
+                                </Card>
                               </View>
                             );
                           }
                           return null;
                         })
                       )}
-                      <Text style={styles.label}>Fecha y hora de Registro:</Text>
-                      <Text style={styles.text}>
-                        {entry.data().entryTime?.seconds &&
-                          new Date(entry.data().entryTime.seconds * 1000).toLocaleString()}
-                      </Text>
                     </View>
                   ))}
                 </View>
@@ -169,9 +179,7 @@ const UserDetailsScreen = (props) => {
             </View>
           )
         )}
-
       </View>
-
     </ScrollView>
   );
 };
@@ -179,7 +187,7 @@ const UserDetailsScreen = (props) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-
+    backgroundColor:"#E8E8E8"
   },
   loadingText: {
     fontSize: 18,
@@ -189,6 +197,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 10,
+    marginBottom:10
   },
   text: {
     fontSize: 14,
@@ -198,6 +207,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom:20
+  },
+  card:{
+    marginBottom:20
+  },
+  avatarContainerStyle: {
+    height: 150, // Ajusta la altura según tus necesidades
+    width: 150, // Ajusta el ancho según tus necesidades
+  },
+  avatarPlaceholderStyle: {
+    backgroundColor: 'transparent',
   },
 });
 

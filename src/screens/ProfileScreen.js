@@ -7,6 +7,7 @@ import ProfileUser from "../components/account/ProfileUser";
 import Loading from "../components/common/Loading";
 import OptionsUser from "../components/account/OptionsUser";
 
+
 export default function ProfileScreen() {
   const [reload, setReload] = useState(false);
   const [visibleLoad, setVisibleLoad] = useState(false);
@@ -16,9 +17,14 @@ export default function ProfileScreen() {
   console.log("rel -> ",reload)
 
   const logout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-    navigation.navigate('login');
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      navigation.navigate('login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error.message);
+      // Puedes mostrar un mensaje de error o realizar otras acciones en caso de error.
+    }
   };
   return (
     <View style={styles.container}>
