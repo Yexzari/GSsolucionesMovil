@@ -7,7 +7,6 @@ const MapScreen = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
 
   useEffect(() => {
-    // Obtener la ubicación actual del usuario aquí y actualizar setCurrentLocation
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;

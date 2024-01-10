@@ -12,6 +12,9 @@ import { Dimensions } from 'react-native'; // Agrega esta importación al princi
 import { StyleSheet } from "react-native";
 import { Text,View } from "react-native-elements";
 import MenuButton from "./MenuButton";
+import ProjectListStack from "./ProjectListStack";
+import CreateProjectScreen from "../screens/CreateProjectScreen";
+import ProjectStack from "./ProjectStack";
 
 const Drawer = createDrawerNavigator();
 
@@ -60,9 +63,9 @@ const DrawerContent = ({ navigation }) => {
           onPress={() => navigation.navigate("Profile")}></MenuButton>
         <Text style={{marginTop:25, marginBottom:10, fontWeight:"bold", color:"white"}}>Proyectos</Text>
           <MenuButton text="Proyectos"
-             type="material-community" icon="account-group-outline" ></MenuButton>
+             type="material-community" icon="account-group-outline" onPress={() => navigation.navigate("ProjectList")}></MenuButton>
           <MenuButton text="Agregar Proyecto"
-           type="material-community" icon="account-plus-outline"></MenuButton>
+           type="material-community" icon="account-plus-outline" onPress={() => navigation.navigate("CreateProjectScreen")}></MenuButton>
       </DrawerContentScrollView>
     </GradientBackground>
   );
@@ -98,6 +101,8 @@ export default function AppNavigation() {
       <Drawer.Screen name="Inicio" component={IndexStack} />
       <Drawer.Screen name="UserList" component={UserListStack} options={{ title: "Operativos" }} />
       <Drawer.Screen name="CreateUserScreen" component={CreatUserStack} options={{ title: "Agregar usuario" }} />
+      <Drawer.Screen name="ProjectList" component={ProjectListStack} options={{ title: "Proyectos" }} />
+      <Drawer.Screen name="CreateProjectScreen" component={ProjectStack} options={{ title: "Agregar proyectos" }} />
       <Drawer.Screen name="Profile" component={ProfileStack} options={{ title: "Perfil" }} />
       
     </Drawer.Navigator>
