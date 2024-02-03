@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View, Dimensions } from 'react-native';
 import LoginScreen from './LoginScreen';
 import Loading from '../components/common/Loading';
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -9,9 +9,13 @@ import { Picker } from '@react-native-picker/picker';
 import { Alert } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import ButtonRegistro from './ButtonRegistro';
+import Checkbox from 'expo-checkbox';
+
 
 
 export default function IndexScreen(props) {
+  const [isChecked, setChecked] = useState(false);
+  const [userRegistered, setUserRegistered] = useState(false);
   const { navigation } = props;
   const [sesion, setSesion] = useState(null);
   const [loadingNames, setLoadingNames] = useState(true);
@@ -26,6 +30,7 @@ export default function IndexScreen(props) {
   const [isScannerVisible, setIsScannerVisible] = useState(false);
   const [cameraPermissionGranted, setCameraPermissionGranted] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
+  const [firstCheckboxDisabled, setFirstCheckboxDisabled] = useState(false); 
 
 
   useEffect(() => {
@@ -112,11 +117,13 @@ export default function IndexScreen(props) {
   
           // También puedes ocultar automáticamente el escáner aquí si lo deseas
           setIsScannerVisible(true);
+
         } else {
           // Si el usuario no existe, mostrar un mensaje de error o tomar las medidas adecuadas
           console.warn('Usuario no encontrado en la base de datos. Escanea un QR válido.');
         }
       }
+      
     } catch (error) {
       console.error('Error al manejar el código QR leído:', error);
     }
@@ -127,38 +134,66 @@ export default function IndexScreen(props) {
       try {
         setIsScannerVisible(true);
         const db = getFirestore();
-        const entryRef = collection(db, 'entries');
-  
+        const projectEntryRef = collection(db, 'entries');
+        const companyEntryRef = collection(db, 'registroEntries');
+
+        // Verificar si el usuario ya tiene un registro de entrada a la empresa
+        const existingCompanyEntryQuery = query(companyEntryRef, where('userId', '==', selectedUser.id));
+        const existingCompanyEntrySnapshot = await getDocs(existingCompanyEntryQuery);
+
+        if (existingCompanyEntrySnapshot.size === 0) {
+          // Si no hay registro de entrada a la empresa, registrarlo
+          const entryTimeToCompany = new Date();
+          const entryDateToCompany = entryTimeToCompany.toISOString().split('T')[0];
+          const entryDataToCompany = {
+            userId: selectedUser.id,
+            entryTime: serverTimestamp(),
+            entryDate: entryDateToCompany,
+          };
+          await addDoc(companyEntryRef, entryDataToCompany);
+
+          console.log('Entrada a la empresa registrada en Firebase.');
+        }
+
         // Verificar si el usuario ya está registrado en el proyecto seleccionado
-        const existingEntryQuery = query(entryRef, where('userId', '==', selectedUser.id), where('projectId', '==', selectedProjectId));
-        const existingEntrySnapshot = await getDocs(existingEntryQuery);
-  
-        if (!existingEntrySnapshot.empty) {
+        const existingProjectEntryQuery = query(projectEntryRef, where('userId', '==', selectedUser.id), where('projectId', '==', selectedProjectId));
+        const existingProjectEntrySnapshot = await getDocs(existingProjectEntryQuery);
+
+        if (!existingProjectEntrySnapshot.empty) {
           // El usuario ya está registrado en este proyecto
           Alert.alert('Advertencia', 'Este usuario ya está registrado en este proyecto.');
           return;
         }
-  
-        // Registrar la entrada si el usuario no está registrado en este proyecto
-        const entryData = {
+
+        // Obtener la fecha y hora actual
+        const entryTimeToProject = new Date();
+        const entryDateToProject = entryTimeToProject.toISOString().split('T')[0];
+
+        // Registrar la entrada al proyecto
+        const entryDataToProject = {
           userId: selectedUser.id,
           projectId: selectedProjectId,
           entryTime: serverTimestamp(),
+          entryDate: entryDateToProject,
         };
-        await addDoc(entryRef, entryData);
-  
-        // Buscar el nombre del proyecto en la lista de proyectos
+        await addDoc(projectEntryRef, entryDataToProject);
+
+        // Obtener el nombre del proyecto en la lista de proyectos
         const selectedProject = projects.find((project) => project.id === selectedProjectId);
         const projectName = selectedProject ? selectedProject.name : 'Desconocido';
-  
+
         // Mostrar alert con detalles
-        const formattedTime = new Date().toLocaleTimeString();
-        const alertMessage = `Usuario: ${selectedUser.name}\nHora registrada: ${formattedTime}\nProyecto asignado: ${projectName}`;
+        const formattedTimeToProject = entryTimeToProject.toLocaleTimeString();
+        const formattedDateToProject = entryDateToProject;
+        const alertMessage = `Usuario: ${selectedUser.name}\nFecha registrada en el proyecto: ${formattedDateToProject}\nHora registrada en el proyecto: ${formattedTimeToProject}\nProyecto asignado: ${projectName}`;
         Alert.alert('Entrada Registrada', alertMessage);
-  
-        console.log('Hora de entrada registrada en Firebase con proyecto asignado.');
+
+        // Verificar si el usuario tiene un registro en registroEntries
+        const hasCompanyEntry = existingCompanyEntrySnapshot.size > 0;
+        setChecked(hasCompanyEntry); // Marcar o desmarcar el checkbox según tenga o no un registro en registroEntries
+
       } catch (error) {
-        console.error('Error al registrar la hora de entrada:', error);
+        console.error('Error al registrar la entrada:', error);
       } finally {
         setSelectedUser(null);
         setSelectedProjectId(null);
@@ -168,6 +203,8 @@ export default function IndexScreen(props) {
       Alert.alert('Por favor, selecciona un usuario y un proyecto antes de confirmar la entrada.');
     }
   };
+  
+  
   
 
   if (loadingNames || sesion === null) {
@@ -182,11 +219,17 @@ export default function IndexScreen(props) {
     return <Text>No tienes permisos para acceder a la cámara.</Text>;
   }
   function SvgTop(){
+    const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height;
+  const svgWidth = screenWidth;
+  const svgHeight = (screenWidth / 390) * 144; 
+
     return(
+
       <Svg
       xmlns="http://www.w3.org/2000/svg"
-      width={390}
-      height={144}
+      width={svgWidth}
+      height={svgHeight}
       fill="none"
     >
       <Path
@@ -225,11 +268,23 @@ export default function IndexScreen(props) {
   return sesion ? (
     <View style={styles.viewForm}>
       <View style={styles.topContainer}>
-        <SvgTop style={styles.sv}/>
+      <SvgTop style={styles.sv} />
         <Text style={{ ...styles.hora, fontSize: 100,position: 'absolute',}}>
           {currentTime}
         </Text>
       </View>
+      
+      <View style={styles.section}>
+      <Checkbox
+        style={styles.checkbox}
+        value={isChecked}
+        onValueChange={setChecked}
+        disabled={firstCheckboxDisabled}
+      />
+      <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+      <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+      <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+    </View>
       <Picker
         selectedValue={selectedUser ? selectedUser.id : null}
         onValueChange={(itemValue, itemIndex) => {
@@ -257,7 +312,6 @@ export default function IndexScreen(props) {
         ))}
       </Picker>
 
-
 {cameraPermissionGranted && (
    <View style={styles.scannerContainer}>
           <BarCodeScanner
@@ -270,7 +324,7 @@ export default function IndexScreen(props) {
           />
         </View>
 )}
-      <ButtonRegistro title="Confirmar Entrada" style={styles.btnRegister} onPress={handleConfirm}></ButtonRegistro>
+      <ButtonRegistro title="Confirmar Entrada" style={styles.btnRegister} onPress={handleConfirm}></ButtonRegistro>  
     </View>
   ) : (
     <LoginScreen />
@@ -320,5 +374,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  container: {
+    flex: 1,
+    marginHorizontal: 16,
+    marginVertical: 32,
+  },
+  section: {
+    flexDirection: 'row',
+    alignItems:'center',
 
+  },
+  paragraph: {
+    fontSize: 10,
+  },
+  checkbox: {
+    width: 25, 
+  height: 25,
+  marginHorizontal:25,
+    color:'blue'
+  },
 });
